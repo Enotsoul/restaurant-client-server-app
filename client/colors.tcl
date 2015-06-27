@@ -15,7 +15,8 @@ carrot #e67e22
 pumpkin #d35400
 alizarin #e74c3c
 pomegranate #c0392b
-clouds #ecf0f1
+clouds #fbfcfc
+
 silver #bdc3c7
 concrete #95a5a6
 asbestos #7f8c8d
