@@ -1,3 +1,4 @@
+#!/usr/bin/env tclsh
 #####################
 # Server pentru aplicatia de restaurante
 #####################
@@ -12,6 +13,7 @@ nx::Class create Server {
 	:variable Clients
 	:variable Server
 
+	:variable access "banned -1 inactive 0 client 1 waiter 2 cook 3 administrator 4 boss 5 superadmin 7"
 	
 	
 	:method init {} {
@@ -33,6 +35,11 @@ nx::Class create Server {
 		vwait forever
 
 	}
+
+	:public method getAccess {name} {
+		return [dict get ${:access} [string tolower $name] ]
+	}
+	
 
 	:public method AcceptConnection {sock address port} {
 		puts "[getTimestamp] Accepted $sock from $address port $port"
@@ -68,19 +75,20 @@ nx::Class create Server {
 		switch -- [lindex $msg 0] {
 			AUTH { :AuthUser $sock $theRest   }
 			TABLE { :TableManagement $sock $theRest }
+			PRODUCT { :ProductManagement $sock $theRest }
 			default { puts $sock "NIY Scuze, nu este inca implementat"  }
 		}
 	}
 
 	:method AuthUser {sock msg} {
 		set errors ""
-		set username [lindex $msg 0]
+		set email [lindex $msg 0]
 		set password [lindex $msg 1]
 
-		#View if username exists and if password is correct
-		array set Client [list username "" password ""]
-		DB eval {SELECT username,password,nivel FROM utilizatori WHERE username=$username} Client {}
-		if {![string match -nocase $Client(username) $username]} {
+		#View if email exists and if password is correct
+		array set Client [list email "" password ""]
+		DB eval {SELECT id,email,password,nivel FROM utilizatori WHERE email=$email OR username=$email} Client {}
+		if {![string match -nocase $Client(email) $email]} {
 			puts $sock "AUTH INEXISTENT"
 			lappend errors "AUTH INEXISTENT"
 		}
@@ -92,29 +100,71 @@ nx::Class create Server {
 		}
 
 		if {[string length $errors] == 0} {
-			#TODO control if someone is already logged in with this username
+			#TODO control if someone is already logged in with this email
 			#If so, log him out and send him a logout message.
-			dict set :Clients $sock username $username
-			dict set :Clients $username sock $sock
+			dict set :Clients $sock email $email
+			dict set :Clients $email sock $sock
+			dict set :Clients $email level $Client(nivel)
+			dict set :Clients $email id $Client(id)
 			
+			#Control if level 0 (banned/inactive), disallow
 			puts $sock "AUTH OK $Client(nivel)"
 		}
 
-		puts "[getTimestamp]: AUTH from $sock user $username  $errors"
+		puts "[getTimestamp]: AUTH from $sock user $email  $errors"
 		
 	}
 
+	:method verifyAuthenticated {sock} {
+		if {[dict exists ${:Clients} $sock email]} {
+			return  1
+		} else { 
+			puts $sock "AUTH REQUIRED"
+			return  0
+		}
+	}
+
+	:method verifyAccess {sock minAccess} {
+		if {![:verifyAuthenticated $sock]} { return 0 }
+		set email [dict get ${:Clients} $sock email]
+
+		if {[dict get ${:Clients} $email level] < $minAccess} {
+			puts sock "ACCESS DENIED"
+			return 0
+		}
+
+		return 1
+	}
+
 	:method TableManagement {sock msg} {
-		#TODO VERIFY IF AUTHENTICATED!
-		#VERIFY IF ACCESS (>= 2)
-		
+		if {![:verifyAccess $sock  [:getAccess WAITER] ]} { return 0 }
+
 		#LIST - Lists all tables
 		#INFO <nr> - gives info about table number <nr>
 				
 		set mese [DB eval {SELECT * FROM masa}]
 		puts $sock "TABLE LIST  $mese"
-
 		puts "[getTimestamp]: TABLE $msg from $sock LIST: $mese "
+
+	}
+
+	:method ProductManagement {sock msg} {
+		if {![:verifyAccess $sock  [:getAccess WAITER] ]} { return 0 }
+		set subcommand [lindex $msg 0]
+
+		#LIST - Lists all products
+		#INFO <nr> - gives info about product number <nr>
+		switch -- $subcommand {
+			LIST { 
+				set products [DB eval {SELECT * FROM produse}]
+				puts $sock "PRODUCT LIST  $products"
+			}
+			INFO {
+			
+			}
+		}
+
+		puts "[getTimestamp]: PRODUCT $msg from $sock LIST: $products "
 
 	}
 
