@@ -498,13 +498,15 @@ nx::Class create RestaurantUI {
 			set quantity  [dict get ${:order} $key quantity] 
 			set subtotal [expr {$price*$quantity}]
 
-			if {$maxWidth < 300} {
-				set text [fmt $charsPerLine  "$name   $quantity x $price = $subtotal"]
+				
+			set text [fmt $charsPerLine  "$name   $quantity x $price = $subtotal"]
+			if {!$update} {
 				$treeview insert {} end -id product.$key  -text  $text -tags product
-			} else { 
-				lappend values   $price  $quantity $subtotal
-				$treeview insert {} end -id product.$key -tags product  -text $name -values $values  {*}[expr {$maxWidth <300 ? "" : "-image product_thumb_$key "}]
+			} else {
+				$treeview item product.$key -text $text -tags product
 			}
+			#	lappend values   $price  $quantity $subtotal
+			#	$treeview insert {} end -id product.$key -tags product  -text $name -values $values  {*}[expr {$maxWidth <300 ? "" : "-image product_thumb_$key "}]
 			
 			set total [expr {$total+$subtotal}]
 		}
