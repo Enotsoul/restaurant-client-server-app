@@ -26,7 +26,9 @@ namespace eval ttk::theme::cerulean {
 		buttonfont {Helvetica 14}
 
 	}
-	set theme(subheadingfont) [font create HelveticaSubheading -family Helvetica -size 14 -weight bold]
+	set theme(h3font) [font create HelveticaH3 -family Helvetica -size 14 -weight bold]
+	set theme(subheadingfont) [font create HelveticaH2 -family Helvetica -size 16 -weight bold]
+	set theme(headingfont) [font create HelveticaH1 -family Helvetica -size 20 -weight bold]
 
 	. configure -background $theme(bgcolor)
 
@@ -206,8 +208,13 @@ namespace eval ttk::theme::cerulean {
 		ttk::style map $type.TLabel -background \
 			[list hover $hover]
 	}
+	
+	ttk::style configure H1.TLabel -background  $theme(bgcolor)  -foreground 	#54b4eb -font  $theme(headingfont)
+	ttk::style configure H2.TLabel -background  $theme(bgcolor)  -foreground 	#54b4eb -font  $theme(subheadingfont)
+	ttk::style configure H3.TLabel -background  $theme(bgcolor)  -foreground 	#54b4eb -font  $theme(h3font)
 
 		ttk::style configure Hide.TLabel -font {Helvetica 1}
+
 
 			###########################
 			#ttk::labelframe
@@ -229,6 +236,7 @@ namespace eval ttk::theme::cerulean {
 		#  Separator.separator -sticky new
 			# }
 
+		ttk::style configure Big.TLabelframe.Label -background $theme(bgcolor)   -foreground #54b4eb -font $theme(headingfont) 
 
 			###########################
 			#ttk::separator
@@ -239,27 +247,69 @@ namespace eval ttk::theme::cerulean {
 		#ttk::spinbox
 		###########################
 
+		foreach {c1 c2 c3} {#54b4eb #2fa4e7  #1d9ce5 } { }
+
+		ttk::style layout  TSpinbox {
+			Spinbox.field -side top -sticky we -children {
+				Spinbox.downarrow -side left -sticky nsw 
+				Spinbox.uparrow -side right -sticky nse
+				Spinbox.padding -sticky nswe -children {Spinbox.textarea -sticky nswe}
+
+			}
+		}
+		ttk::style configure TSpinbox -arrowsize 40 -arrowcolor white
+		#Spin arrows colors
+		ttk::style configure TSpinbox -background $c1 -padding {5 1 } ;#$theme(bgcolor) 
+		#Textarea
+		ttk::style configure TSpinbox -fieldbackground $theme(bgcolor) -foreground black
+
+		ttk::style configure TSpinbox  -bordercolor $c3  -lightcolor $c2  -darkcolor $c3 -border $c3 
+
+		ttk::style map TSpinbox -background \
+			[list active $c2 disabled grey readonly grey]
+		ttk::style map TSpinbox -foreground \
+			[list active $theme(bgcolor) disabled grey readonly grey]
+		ttk::style map TSpinbox -fieldbackground \
+			[list active $theme(bgcolor) disabled grey readonly grey]
+		#Font must be set manually..
+
 		###########################
 		#ttk::scrollbar
 		###########################
+		ttk::style configure TScrollbar -background 	#54b4eb 
+		ttk::style configure TScrollbar -troughcolor $theme(bgcolor) 
+		ttk::style configure TScrollbar -arrowcolor  $theme(bgcolor)
+		ttk::style map TScrollbar -background \
+			[list active  #2fa4e7  disabled  grey]
+		ttk::style map TScrollbar -foreground \
+			[list active white  disabled grey]
+		ttk::style map TScrollbar -arrowcolor \
+			[list disabled black]
 
 		###########################
 		#ttk::treeview
 		###########################
-		if {0} {
-
-			ttk::style configure Treeview -background color
-			ttk::style configure Treeview -foreground color
-			ttk::style configure Treeview -font namedfont
-			ttk::style configure Treeview -fieldbackground color
+			foreach {type} {Primary Success Info Warning Danger}  {background hover pressed} { 
+		#54b4eb #2fa4e7  #1d9ce5 
+		#88c149 #73a839  #699934
+		#04519b #033c73  #02325f
+		#ff6707 #dd5600  #c94e00
+		#e12b31 #c71c22  #b5191f
+		} {  }	
+			ttk::style configure Treeview -background $theme(bgcolor) 
+			ttk::style configure Treeview -foreground black
+			ttk::style configure Treeview -font $theme(entryfont)
+			ttk::style configure Treeview -fieldbackground white 
+			ttk::style configure Treeview.padding -padding {0} 
 			ttk::style map Treeview -background \
-				[list selected color]
+				[list selected  #2fa4e7 ]
 			ttk::style map Treeview -foreground \
-				[list selected color]
-			ttk::style configure Heading -font namedfont
-			ttk::style configure Heading -background color
-			ttk::style configure Heading -foreground color
-		}
+				[list selected white]
+			ttk::style configure Heading -font $theme(h3font)
+
+			ttk::style map Heading 	-background [list active  #2fa4e7 hover #2fa4e7   ]
+			ttk::style configure Heading -background 	#54b4eb -foreground white -bordercolor black -lightcolor black -darkcolor black -borderwidth 0
+
 		###########################
 		#ttk::menubutton
 		###########################
