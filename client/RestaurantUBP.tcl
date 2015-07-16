@@ -41,6 +41,7 @@ nx::Class create RestaurantUI -mixins [list UIFunctions  ] {
 		set :authentication [AuthenticationUI new]
 		set :tableManagement [TableManagementUI new]
 		set :productManagement [ProductManagementUI new]
+		set :orderManagement [OrderManagementUI new]
 	
 		:screenSettings
 	
@@ -69,7 +70,7 @@ nx::Class create RestaurantUI -mixins [list UIFunctions  ] {
 	}
 
 	:public method productOrderScreen {command data} {
-		${:productManagement} productOrderScreen $command  $data	
+		${:orderManagement} productOrderManagement $command  $data	
 	}
 	
 	proc writePdf {} {
@@ -82,7 +83,17 @@ nx::Class create RestaurantUI -mixins [list UIFunctions  ] {
 
 
 }
-
+   proc scanTz {time} {
+	   if {![string is integer $time]} {
+		   set r [string range $time 19 19]
+		   if {$r != "" && ($r == "-" || $r == "+")} {
+			   set time [clock scan $time -format {%Y-%m-%d %H:%M:%S%z} ]	
+		   } else {
+			   set time [clock scan $time]
+		   }
+	   }
+	   return $time
+   }
 ######################## 
 # Starting Up!
 ######################## 

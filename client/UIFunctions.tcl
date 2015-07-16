@@ -170,5 +170,18 @@ nx::Class create UIFunctions {
 		return
 	}
 
+	:public method tvSortBy {tv column {parent {}}} {
+		set l [list]
+		foreach item [$tv children $parent] {
+			lappend l [list $item [$tv set $item $column]]
+		}
+		set o [list]
+		foreach pair [lsort -dictionary -index 1 $l] {
+			lappend o [lindex $pair 0]
+		}
+		$tv children $parent $o
+	}
+
+
 
 }

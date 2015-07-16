@@ -94,23 +94,8 @@ nx::Class create ClientConnection {
 	:method OrderManagement {msg} {
 		set command [lindex $msg 0]
 		set data [lrange $msg 1 end]
-		switch -- $command {
-			OK { 
-				#INFORM USER ORDER HAS BEEN PLACED!
-				$::ui productOrderScreen OK $data
-			 }	
-			TAKE {
-				#Cook has possibility to take an order
-				$::ui productOrderScreen TAKE $data
-			}
-			INACTIVE {
-				#Order has not been taken within 60-100 seconds, inactive..
-			}
-			COMPLETE {
-				#Waiter can go pick up order
-				$::ui productOrderScreen COMPLETE $data
-			}
-		}
+		$::ui productOrderScreen $command $data
+
 	}
 
 
