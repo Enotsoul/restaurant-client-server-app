@@ -4,8 +4,9 @@
 
 A Client server application for Restaurant Management.
 It was built entirely in Tcl (client + Server)
-I've given up on it since the Tcl client with Androwish took too much time to build.
-A HTMl client alternative would be the best.
+I've given up on it since the Tcl client with Androwish took too much time to build if you compare it to a HTML client-server approach which is the norm nowadays.
+
+
 
 It allowed registration of users.
 They could view a menu
